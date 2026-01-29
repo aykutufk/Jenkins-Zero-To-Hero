@@ -19,13 +19,14 @@ pipeline {
         sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
       }
     }
-    stage('Static Code Analysis') {
-      environment {
+ stage('Static Code Analysis') {
+    environment {
         SONAR_URL = "http://3.85.193.28:9000"
-      }
-      steps {
+    }
+    steps {
         withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-          sh '# 1. Java 17'yi konteyner içine hızlıca kur
+            sh '''
+                # 1. Java 17'yi konteyner içine hızlıca kur
                 apt-get update && apt-get install -y openjdk-17-jdk
                 
                 # 2. Java 17'yi bu komut için aktif et
@@ -37,10 +38,11 @@ pipeline {
                 mvn sonar:sonar \
                 -Dsonar.login=$SONAR_AUTH_TOKEN \
                 -Dsonar.host.url=${SONAR_URL} \
-                -Dsonar.projectKey=spring-boot-app'
+                -Dsonar.projectKey=spring-boot-app
+            '''
         }
-      }
     }
+}
     stage('Build and Push Docker Image') {
       environment {
         DOCKER_IMAGE = "abhishekf5/ultimate-cicd:${BUILD_NUMBER}"
