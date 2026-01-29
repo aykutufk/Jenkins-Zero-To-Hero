@@ -25,7 +25,19 @@ pipeline {
       }
       steps {
         withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-          sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
+          sh '# 1. Java 17'yi konteyner içine hızlıca kur
+                apt-get update && apt-get install -y openjdk-17-jdk
+                
+                # 2. Java 17'yi bu komut için aktif et
+                export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+                export PATH=$JAVA_HOME/bin:$PATH
+                
+                # 3. Sonar taramasını çalıştır
+                cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && \
+                mvn sonar:sonar \
+                -Dsonar.login=$SONAR_AUTH_TOKEN \
+                -Dsonar.host.url=${SONAR_URL} \
+                -Dsonar.projectKey=spring-boot-app'
         }
       }
     }
